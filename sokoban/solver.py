@@ -166,7 +166,7 @@ def depthFirstSearch(gameState):
                 newPosPlayer, newPosBox = updateState(node[-1][0], node[-1][1], action)
                 if isFailed(newPosBox):
                     continue
-                frontier.append([(newPosPlayer, newPosBox)])
+                frontier.append(node + [(newPosPlayer, newPosBox)])
                 actions.append(node_action + [action[-1]])
     return temp
 
@@ -228,6 +228,7 @@ def cost(actions):
     return len([x for x in actions if x.islower()])
 
 def uniformCostSearch(gameState):
+    start =  time.time()
     """Implement uniformCostSearch approach"""
     beginBox = PosOfBoxes(gameState)
     beginPlayer = PosOfPlayer(gameState)
@@ -239,6 +240,7 @@ def uniformCostSearch(gameState):
     actions = PriorityQueue()
     actions.push([0], 0)
     temp = []
+    openedNode = 1
     ### CODING FROM HERE ###
     # Chọn 1 node từ hàng đợi frontier cho đến khi hàng đợi rỗng
     while not frontier.isEmpty():
@@ -275,12 +277,82 @@ def uniformCostSearch(gameState):
                 # Kiểm tra xem vị trí mới của box có hợp lệ hay không.
                 if isFailed(newPosBox):
                     continue
+                # Tính số node được mở ra
+                openedNode += 1
                 # Tính cost tương ứng với hành động ở trên.
                 costAction = cost(node_action[1:] + [action[-1]])
                 # Nếu vị trí mới là hợp lệ thì ta thêm vị trí mới của player, box và action tương ứng vào trong hàng đợi ưu tiên
                 # với costAction đã được tính ở trên.
                 frontier.push([(newPosPlayer, newPosBox)], costAction)
                 actions.push(node_action + [action[-1]], costAction)
+    end =  time.time()
+    print("Times run: ", end - start)
+    print("Number of node opened:", openedNode)
+    print("Step:", len(temp))
+    return temp
+
+def heuristic(posPlayer, posBox):
+    # print(posPlayer, posBox)
+    """A heuristic function to calculate the overall distance between the else boxes and the else goals"""
+    distance = 0
+    completes = set(posGoals) & set(posBox)
+    sortposBox = list(set(posBox).difference(completes))
+    sortposGoals = list(set(posGoals).difference(completes))
+    for i in range(len(sortposBox)):
+        distance += (abs(sortposBox[i][0] - sortposGoals[i][0])) + (abs(sortposBox[i][1] - sortposGoals[i][1]))
+    return distance
+
+def aStarSearch(gameState):
+    """Implement aStarSearch approach"""
+    start =  time.time()
+    beginBox = PosOfBoxes(gameState)
+    beginPlayer = PosOfPlayer(gameState)
+    temp = []
+    start_state = (beginPlayer, beginBox)
+    frontier = PriorityQueue()
+    frontier.push([start_state], heuristic(beginPlayer, beginBox))
+    exploredSet = set()
+    actions = PriorityQueue()
+    actions.push([0], heuristic(beginPlayer, start_state[1]))
+    openedNode = 1
+    while len(frontier.Heap) > 0:
+        node = frontier.pop()
+        node_action = actions.pop()
+
+        if isEndState(node[-1][-1]):
+            temp += node_action[1:]
+            break
+
+
+        ### CONTINUE YOUR CODE FROM HERE
+        '''
+            Kiểm tra node đang xét có nằm trong tập đóng hay không?
+            Nếu nằm trong tập đóng thì ta không xét nữa.
+            Nếu không thì ta sẽ lấy nó ra để xét và thêm nó vào trong
+            tập đóng.
+        '''
+        if node[-1] not in exploredSet:
+            # Thêm node đang xét vào trong tập đóng
+            exploredSet.add(node[-1])
+            # Mở rộng node đang xét với các hành động hợp lệ với node đang xét
+            for action in legalActions(node[-1][0], node[-1][1]):
+                # Cập nhật vị trí player và box mới
+                newPosPlayer, newPosBox = updateState(node[-1][0], node[-1][1], action)
+                # Kiểm tra xem vị trí mới của box có hợp lệ hay không.
+                if isFailed(newPosBox):
+                    continue
+                # Tính số node được mở ra
+                openedNode += 1
+                # Tính cost tương ứng với hành động ở trên.
+                costAction = heuristic(newPosPlayer, newPosBox) + len(node_action + [action[-1]])
+                # Nếu vị trí mới là hợp lệ thì ta thêm vị trí mới của player, box và action tương ứng vào trong hàng đợi ưu tiên
+                # với costAction đã được tính ở trên.
+                frontier.push([(newPosPlayer, newPosBox)], costAction)
+                actions.push(node_action + [action[-1]], costAction)
+    end =  time.time()
+    print("Times run: ", end - start)
+    print("Number of node opened:", openedNode)
+    print("Step:", len(temp))
     return temp
 
 """Read command"""
@@ -314,10 +386,11 @@ def get_move(layout, player_pos, method):
         result = breadthFirstSearch(gameState)
     elif method == 'ucs':
         result = uniformCostSearch(gameState)
+    elif method == 'astar':
+        result = aStarSearch(gameState)        
     else:
         raise ValueError('Invalid method.')
     time_end=time.time()
     print('Runtime of %s: %.2f second.' %(method, time_end-time_start))
     print(result)
-    print(len(result))
     return result

@@ -35,7 +35,7 @@ class Level:
                         level_row.append(SOKOBAN.AIR)
                         self.position_player = [x,y]
                 self.structure.append(level_row)
-        
+
         self.width = max_width * SOKOBAN.SPRITESIZE
         self.height = (len(rows) - 1) * SOKOBAN.SPRITESIZE
 

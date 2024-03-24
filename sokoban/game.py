@@ -43,6 +43,7 @@ class Game:
        }
 
     def load_level(self):
+        print("Level:", self.index_level)
         self.level = Level(self.index_level)
         self.board = pygame.Surface((self.level.width, self.level.height))
         if self.player:
@@ -71,7 +72,7 @@ class Game:
                 self.player.move(event.key, self.level, self.player_interface)
                 if self.has_win():
                     self.index_level += 1
-                    if (self.index_level == 17):
+                    if (self.index_level == 19):
                         self.index_level = 1
                     self.scores.save()
                     self.load_level()
@@ -114,6 +115,7 @@ class Game:
         # strategy = get_move(self.level.structure[:-1], self.level.position_player, 'dfs')
         # strategy = get_move(self.level.structure[:-1], self.level.position_player, 'bfs')
         strategy = get_move(self.level.structure[:-1], self.level.position_player, 'ucs')
+        # strategy = get_move(self.level.structure[:-1], self.level.position_player, 'astar')
         # with open("assets/sokobanSolver/Solverlevel_" + str(self.index_level) + ".txt", 'w+') as solver_file:
         #     for listitem in strategy:
         #         solver_file.write('%s, ' % listitem)
