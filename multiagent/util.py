@@ -237,6 +237,22 @@ def manhattanDistance(xy1, xy2):
     "Returns the Manhattan distance between points xy1 and xy2"
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
+def euclideDistance(xy1, xy2):
+    return ((xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2) ** 0.5
+
+# def disktra(xy1, xy2):
+#     pq = PriorityQueue()
+#     pq.push(xy1)
+#     d = []
+#     d[xy1] = 0
+#     xx = [0, -1, 0, 1]
+#     yy = [-1, 0, 1, 0]
+#     while not pq.isEmpty():
+#         x = pq.pop()
+#         for i in range(4):
+#             newx = x + xx[i]
+#             newy = x + yy[i]
+#             if 
 
 """
 Data structures and functions useful for various course projects

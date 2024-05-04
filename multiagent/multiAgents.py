@@ -12,7 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-from util import manhattanDistance
+from util import manhattanDistance, euclideDistance
 from game import Directions
 import random, util
 
@@ -158,7 +158,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         #util.raiseNotDefined()
         def minimax(state):
             bestValue, bestAction = None, None
-            print(state.getLegalActions(0))
+            # print(state.getLegalActions(0))
             value = []
             for action in state.getLegalActions(0):
                 #value = max(value,minValue(state.generateSuccessor(0, action), 1, 1))
@@ -171,7 +171,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     if succ > bestValue:
                         bestValue = succ
                         bestAction = action
-            print(value)
+            # print(value)
             return bestAction
 
         def minValue(state, agentIdx, depth):
@@ -418,6 +418,7 @@ def betterEvaluationFunction(currentGameState):
     newCapsules = currentGameState.getCapsules()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
+    
     closestGhost = min([manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates])
     if newCapsules:
         closestCapsule = min([manhattanDistance(newPos, caps) for caps in newCapsules])
@@ -442,5 +443,62 @@ def betterEvaluationFunction(currentGameState):
 
     return -2 * closestFood + ghost_distance - 10 * len(foodList) + closest_capsule
 
+
+
+def MinhsbetterEvaluationFunction(currentGameState):
+    """
+    Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
+    evaluation function (question 5).
+
+    DESCRIPTION: <write something here so we know what you did>
+    """
+    "*** YOUR CODE HERE ***"
+    #util.raiseNotDefined()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newCapsules = currentGameState.getCapsules()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    # Get current score
+    current_score = currentGameState.getScore()
+    ghost_score = 0
+    for ghost in newGhostStates:
+        # Calculate distance of pacman and ghost
+        distance = euclideDistance(newPos, ghost.getPosition())
+        if distance:
+            # Ghost being scared?
+            if ghost.scaredTimer > 0:
+                # Eat ghost
+                ghost_score += 100 / distance
+            else:
+                # run
+                ghost_score -= 10 / distance
+
+    pacmanDirectsScore = len(currentGameState.getLegalActions(0))
+
+    if newCapsules:
+        closestCapsule = min([euclideDistance(newPos, caps) for caps in newCapsules])
+    else:
+        closestCapsule = 0
+
+    if closestCapsule:
+        closest_capsule = -3 / closestCapsule
+    else:
+        closest_capsule = 100
+
+    # if closestGhost:
+    #     ghost_distance = -2 / closestGhost
+    # else:
+    #     ghost_distance = -500
+
+    foodList = newFood.asList()
+    if foodList:
+        closestFood = min([euclideDistance(newPos, food) for food in foodList])
+    else:
+        closestFood = 0
+    final_score = current_score + ghost_score - 4 * closestFood - 10 * len(foodList) + pacmanDirectsScore + closest_capsule
+    # return -2 * closestFood + ghost_distance - 10 * len(foodList) + closest_capsule
+    return final_score
 # Abbreviation
 better = betterEvaluationFunction
