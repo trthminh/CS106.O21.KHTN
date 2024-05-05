@@ -376,9 +376,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
             if num_actions != 0:
                 value /= num_actions
-
-            if value is not None:
                 return value
+            
             else:
                 return self.evaluationFunction(state)
 
@@ -403,6 +402,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         return action
 
+    
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
